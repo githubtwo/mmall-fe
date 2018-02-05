@@ -13,7 +13,7 @@ var getHtmlConfig = function(name, title){
         template    : './src/view/' + name + '.html',
         filename    : 'view/' + name + '.html',
         // favicon     : './favicon.ico',
-        // title       : title,
+        title       : title,
         inject      : true,
         hash        : true,
         chunks      : ['common', name]
@@ -22,10 +22,12 @@ var getHtmlConfig = function(name, title){
 
 //webpack config
 var config = {
+  devtool: 'eval-source-map',
   entry:    {
   	'index' : ['./src/page/index/index.js'],
   	'login' : ['./src/page/login/index.js'],
   	'common' : ['./src/page/common/index.js'],
+    'result' : ['./src/page/result/index.js'],
   },//已多次提及的唯一入口文件
   output: {
     path: __dirname + "/dist",//打包后的文件存放的地方
@@ -39,27 +41,30 @@ var config = {
         loaders: [
             { test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader") },
             { test: /\.(gif|png|jpg|woff|svg|eot|ttf)\??.*$/, loader: 'url-loader?limit=100&name=resource/[name].[ext]' },
-            // {
-            //     test: /\.string$/, 
-            //     loader: 'html-loader',
-            //     query : {
-            //         minimize : true,
-            //         removeAttributeQuotes : false
-            //     }
-            // }
+            { test: /\.string$/, loader: 'html-loader' }
         ]
     },
+  resolve : {
+  	alias : {
+      node_modules  : __dirname + '/node_modules',
+  		util          : __dirname + '/src/util',
+  		page          : __dirname + '/src/page',
+  		service       : __dirname + '/src/service',
+  		image         : __dirname + '/src/image',
+  	}	
+  },
   plugins : [
   	//独立通用模块到js/base.js
   	new webpack.optimize.CommonsChunkPlugin({
   		name : 'common',
   		filename : 'js/base.js'
   	}),
-  	//吧css单独打包到文件里
+  	//把css单独打包到文件里
   	new ExtractTextPlugin("css/[name].css"),
   	//html模板的处理
-  	new HtmlWebpackPlugin(getHtmlConfig('index')),
-  	new HtmlWebpackPlugin(getHtmlConfig('login')),
+  	new HtmlWebpackPlugin(getHtmlConfig('index','首页')),
+  	new HtmlWebpackPlugin(getHtmlConfig('login','用户登陆')),
+    new HtmlWebpackPlugin(getHtmlConfig('result','操作结果')),
   	
   	// new HtmlWebpackPlugin({
   	// 	template : './src/view/index.html',
